@@ -171,7 +171,7 @@ public:
         // can never be evaluated for i == 0? Some compilers see shift by ( i - 1 )
         // and complain that for i == 0 the number is invalid, without
         // checking that shift needs evaluating.
-        return SafeBitConst( ( i > 0 ) ? ( word_t(1) << ( ( i > 0 ) ? ( i - 1 ) : 0 ) ) : 0 );
+        return SafeBitConst( ( i > 0 ) ? ( word_t(1) << ( i - 1 ) ) : 0 );
     }
 #else
     static SafeBitConst make_bit_const( unsigned int i )
@@ -333,17 +333,17 @@ public:
     SafeBitField operator &  ( const SafeBitField & rhs ) const { return SafeBitField( word & rhs.word ); }
     SafeBitField operator ^  ( const SafeBitField & rhs ) const { return SafeBitField( word ^ rhs.word ); }
     SafeBitField operator ~  ( void ) const { return SafeBitField( ~word ); }
-    SafeBitField operator |= ( const SafeBitField & rhs ) { word |= rhs.word; return SafeBitField( *this ); }
-    SafeBitField operator &= ( const SafeBitField & rhs ) { word &= rhs.word; return SafeBitField( *this ); }
-    SafeBitField operator ^= ( const SafeBitField & rhs ) { word ^= rhs.word; return SafeBitField( *this ); }
+    SafeBitField operator |= ( const SafeBitField & rhs ) { word |= rhs.word; return *this; }
+    SafeBitField operator &= ( const SafeBitField & rhs ) { word &= rhs.word; return *this; }
+    SafeBitField operator ^= ( const SafeBitField & rhs ) { word ^= rhs.word; return *this; }
 
     /// Bitwise operators that use bit-constants.
     SafeBitField operator |  ( const_t rhs ) const { return SafeBitField( word | rhs.word ); }
     SafeBitField operator &  ( const_t rhs ) const { return SafeBitField( word & rhs.word ); }
     SafeBitField operator ^  ( const_t rhs ) const { return SafeBitField( word ^ rhs.word ); }
-    SafeBitField operator |= ( const_t rhs ) { word |= rhs.word; return SafeBitField( *this ); }
-    SafeBitField operator &= ( const_t rhs ) { word &= rhs.word; return SafeBitField( *this ); }
-    SafeBitField operator ^= ( const_t rhs ) { word ^= rhs.word; return SafeBitField( *this ); }
+    SafeBitField operator |= ( const_t rhs ) { word |= rhs.word; return *this; }
+    SafeBitField operator &= ( const_t rhs ) { word &= rhs.word; return *this; }
+    SafeBitField operator ^= ( const_t rhs ) { word ^= rhs.word; return *this; }
 
     // Conversion to bool.
     // This is a major source of headaches, but it's required to support code like this:
@@ -471,7 +471,11 @@ inline SafeBitField< unique_index, word_t > operator != ( bool, SafeBitField< un
 // This creates a typedef field_t for SafeBitField<unique_index, ulong> where index is the current line number. Since line numbers __LINE__ are counted
 // separately for all header files, this ends up being the same type in all files using the header which defines field_t.
 #ifdef LOKI_SAFE_BIT_FIELD
-    #define LOKI_BIT_FIELD( word_t ) typedef SafeBitField<__LINE__, word_t>
+	#ifdef __COUNTER__
+		#define LOKI_BIT_FIELD( word_t ) typedef Loki::SafeBitField<__COUNTER__, word_t>
+	#else
+		 #define LOKI_BIT_FIELD( word_t ) typedef Loki::SafeBitField<__LINE__, word_t>
+	#endif
 #else
     #define LOKI_BIT_FIELD( word_t ) typedef word_t
 #endif // LOKI_SAFE_BIT_FIELD
@@ -488,7 +492,7 @@ inline SafeBitField< unique_index, word_t > operator != ( bool, SafeBitField< un
             static const field_t::const_t label = field_t::const_t::make_bit_const( bit_index )
     #endif // LOKI_BIT_FIELD_NONTEMPLATE_INIT
 #else
-    inline size_t make_bit_const( size_t i ) { return ( i > 0 ) ? ( size_t(1) << ( ( i > 0 ) ? ( i - 1 ) : 0 ) ) : 0; }
+    inline size_t make_bit_const( size_t i ) { return ( i > 0 ) ? ( size_t(1) << ( i - 1 ) ) : 0; }
     #define LOKI_BIT_CONST( field_t, label, bit_index ) static const field_t label = make_bit_const( bit_index )
 #endif // LOKI_SAFE_BIT_FIELD
 

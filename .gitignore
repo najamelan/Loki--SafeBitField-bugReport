@@ -1,0 +1,6 @@
+
+*
+!.gitignore
+!/include
+!/include/loki
+!/include/loki/SafeBits.h
